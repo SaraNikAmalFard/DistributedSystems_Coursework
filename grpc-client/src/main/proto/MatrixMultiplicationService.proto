@@ -1,0 +1,23 @@
+syntax = "proto3";
+option java_multiple_files = true;
+package com.grpc;
+
+message Row
+{
+  repeated int32 column = 1;
+}
+
+message MatrixMultiplicationRequest {
+  repeated Row MatrixA = 1;
+  repeated Row MatrixB = 2;
+}
+
+message MatrixMultiplicationReply{
+  repeated Row MatrixC = 1;
+}
+
+service MatrixMultiplicationService {
+  rpc AddBlock(MatrixMultiplicationRequest) returns (MatrixMultiplicationReply){}
+  rpc MultiplyBlock(MatrixMultiplicationRequest) returns (MatrixMultiplicationReply){}
+  rpc multiplyStreamBlock(stream MatrixMultiplicationRequest) returns ( stream MatrixMultiplicationReply){}
+}
