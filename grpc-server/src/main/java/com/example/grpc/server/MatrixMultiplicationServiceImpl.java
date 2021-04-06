@@ -7,7 +7,6 @@ import com.grpc.Row;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 
-
 @GrpcService
 public class MatrixMultiplicationServiceImpl extends MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceImplBase
 {
@@ -39,6 +38,7 @@ public class MatrixMultiplicationServiceImpl extends MatrixMultiplicationService
     @Override
     public void multiplyBlock(MatrixMultiplicationRequest request, StreamObserver<MatrixMultiplicationReply> responseObserver)
     {
+        System.out.println("This is multiply block service to calculate foot print!!");
         // int MAX =  request.getMatrixA(1).getColumnCount();
         // int C[][] = new int[MAX][MAX];
         // C[0][0] = request.getMatrixA(0).getColumn(0) * request.getMatrixB(0).getColumn(0) + request.getMatrixA(0).getColumn(1) * request.getMatrixB(1).getColumn(0);
@@ -63,6 +63,7 @@ public class MatrixMultiplicationServiceImpl extends MatrixMultiplicationService
     @Override
     public StreamObserver<MatrixMultiplicationRequest> multiplyStreamBlock(StreamObserver<MatrixMultiplicationReply> responseObserver)
     {
+        System.out.println("This is the stream multiply block method");
         return new StreamObserver<MatrixMultiplicationRequest>() {
             @Override
             public void onNext(MatrixMultiplicationRequest request) {

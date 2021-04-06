@@ -21,36 +21,34 @@ public class MatrixMultiplicationController {
     private GRPCClientService clientService;
 
     @PostMapping("/uploadFile")
-    public String uploadFile(@RequestParam("file") MultipartFile file)
-    {
+    public String uploadFile(@RequestParam("file") MultipartFile file) {
         fileStorageService.storeFile(file);
         return "File successfully uploaded";
     }
 
     @PostMapping("/uploadMultipleFiles")
     public String uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
-        Arrays.asList(files).stream().map(file->uploadFile(file)).collect(Collectors.toList());
-        if(clientService.checkFiles() == true)
-        {
+        Arrays.asList(files).stream().map(file -> uploadFile(file)).collect(Collectors.toList());
+        if (clientService.checkFiles() == true) {
             //clientService.create2DArrayFromFile();
-            clientService.create2DArrayFromFile();
             //System.out.println(clientService.matrixA);
             //System.out.println(clientService.matrixB);
             return "File successfully uploaded";
-        }
-        else
-        {
+        } else {
             clientService.delete();
             return "The matrices or the file you uploaded was not accepted!";
         }
     }
 
     @GetMapping("/multiplyMatrix")
-    public JSONArray multiplyMatrix(@RequestParam(value = "deadline" , defaultValue = "1") int deadline)
+    public JSONArray multiplyMatrix(@RequestParam(value = "deadline", defaultValue = "1") int deadline) // micro second
     {
 
-        int[][] result = clientService.multiplyMatrixBlock(clientService.matrixA , clientService.matrixB , deadline);
-        return  clientService.replyMatrixToJson(result);
+        clientService.create2DArrayFromFile();
+        System.out.println("Matrices are created");
+        int[][] result = clientService.multiplyMatrixBlock(/*clientService.matrixA , clientService.matrixB , */deadline);
+        System.out.println("Method for multiplication finished");
+        return clientService.replyMatrixToJson(result);
     }
 }
 

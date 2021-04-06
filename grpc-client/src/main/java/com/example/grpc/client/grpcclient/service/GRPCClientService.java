@@ -39,7 +39,7 @@ public class GRPCClientService {
 		int commonLineSize = 0;
 
 		if (contents != null) {
-			filePath = "./uploads" + "\\" + contents[0];
+			filePath = "./uploads" + "/" + contents[0];
 			FileInputStream fileInputStream = null;
 			try {
 				fileInputStream = new FileInputStream(filePath);
@@ -64,7 +64,7 @@ public class GRPCClientService {
 				e.printStackTrace();
 			}
 
-			filePath = "./uploads" + "\\" + contents[1];
+			filePath = "./uploads" + "/" + contents[1];
 			try {
 				commonLineSize = lines.size();
 				lines.clear();
@@ -113,8 +113,8 @@ public class GRPCClientService {
 		int row = 0;
 		int size = 0;
 		try {
-			BufferedReader bufferA = new BufferedReader(new FileReader("./uploads" + "\\" + contents[0]));
-			BufferedReader bufferB = new BufferedReader(new FileReader("./uploads" + "\\" + contents[1]));
+			BufferedReader bufferA = new BufferedReader(new FileReader("./uploads" + "/" + contents[0]));
+			BufferedReader bufferB = new BufferedReader(new FileReader("./uploads" + "/" + contents[1]));
 			while ((lineA = bufferA.readLine()) != null) {
 				lineB = bufferB.readLine();
 				String[] valsA = lineA.trim().split("\\s+");
@@ -205,11 +205,12 @@ public class GRPCClientService {
 
 	public static double getFootprint()
 	{
+        System.out.println("Entered footprint method");
 		int[][] matrixOne = {{1,2} , {3,4}};
 		int[][] matrixTwo = {{5,6} , {7,8}};
 		long startTime = System.nanoTime();
 
-		ManagedChannel channel = ManagedChannelBuilder.forAddress("3.92.96.185", 8081)
+		ManagedChannel channel = ManagedChannelBuilder.forAddress("172.31.74.179", 8081)
 				.usePlaintext()
 				.build();
 		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceBlockingStub stub
@@ -223,13 +224,19 @@ public class GRPCClientService {
 		return ftprnt;
 	}
 
-	public static int[][] multiplyMatrixBlock(int[][] matrixA, int[][] matrixB , int deadline) {
-
+	public static int[][] multiplyMatrixBlock(/*int[][] matrixA, int[][] matrixB ,*/ int deadline)
+    {
+        System.out.println("Entered Multiply method");
+        System.out.println("Deadline is = " + deadline);
 		int footPrint = (int)getFootprint();
+        System.out.println("Foot print is = " + footPrint);
 		int bSize = 2;
 		int newSize = matrixA.length / bSize;
 		int multiplyNum = (newSize) * (newSize) * (newSize);
 		int SERVER_NUM = (footPrint* multiplyNum)/deadline;
+		if(SERVER_NUM > 2)
+		    SERVER_NUM = 2;
+        System.out.println("Number of servers needed is = " + SERVER_NUM);
 		int workPerServer = multiplyNum / SERVER_NUM;
 		ArrayList<StreamObserver<MatrixMultiplicationRequest>> requestObserverList = new ArrayList<>();
 		ArrayList<int[][]> resultMatrixArrayList = new ArrayList<>(multiplyNum);
@@ -239,31 +246,31 @@ public class GRPCClientService {
 
 		ManagedChannel channel1 = ManagedChannelBuilder.forAddress("172.31.74.179", 9090).usePlaintext().build();
 		ManagedChannel channel2 = ManagedChannelBuilder.forAddress("172.31.74.213", 9090).usePlaintext().build();
-		ManagedChannel channel3 = ManagedChannelBuilder.forAddress("172.31.76.162", 9090).usePlaintext().build();
+		/*ManagedChannel channel3 = ManagedChannelBuilder.forAddress("172.31.76.162", 9090).usePlaintext().build();
 		ManagedChannel channel4 = ManagedChannelBuilder.forAddress("172.31.77.230", 9090).usePlaintext().build();
 		ManagedChannel channel5 = ManagedChannelBuilder.forAddress("172.31.70.55", 9090).usePlaintext().build();
 		ManagedChannel channel6 = ManagedChannelBuilder.forAddress("172.31.67.0", 9090).usePlaintext().build();
 		ManagedChannel channel7 = ManagedChannelBuilder.forAddress("172.31.76.213", 9090).usePlaintext().build();
 		ManagedChannel channel8 = ManagedChannelBuilder.forAddress("172.31.68.246", 9090).usePlaintext().build();
-
+*/
 		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub1  =MatrixMultiplicationServiceGrpc.newStub(channel1);
 		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub2  =MatrixMultiplicationServiceGrpc.newStub(channel2);
-		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub3  =MatrixMultiplicationServiceGrpc.newStub(channel3);
+		/*MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub3  =MatrixMultiplicationServiceGrpc.newStub(channel3);
 		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub4  =MatrixMultiplicationServiceGrpc.newStub(channel4);
 		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub5  =MatrixMultiplicationServiceGrpc.newStub(channel5);
 		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub6  =MatrixMultiplicationServiceGrpc.newStub(channel6);
 		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub7  =MatrixMultiplicationServiceGrpc.newStub(channel7);
-		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub8  =MatrixMultiplicationServiceGrpc.newStub(channel8);
+		MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub asyncStub8  =MatrixMultiplicationServiceGrpc.newStub(channel8);*/
 
 		ArrayList<MatrixMultiplicationServiceGrpc.MatrixMultiplicationServiceStub> asyncStubList = new ArrayList<>(SERVER_NUM);
 		asyncStubList.add(asyncStub1);
 		asyncStubList.add(asyncStub2);
-		asyncStubList.add(asyncStub3);
+		/*asyncStubList.add(asyncStub3);
 		asyncStubList.add(asyncStub4);
 		asyncStubList.add(asyncStub5);
 		asyncStubList.add(asyncStub6);
 		asyncStubList.add(asyncStub7);
-		asyncStubList.add(asyncStub8);
+		asyncStubList.add(asyncStub8);*/
 
 		for (int i = 0; i < SERVER_NUM; i++)
 		{
@@ -314,9 +321,10 @@ public class GRPCClientService {
 		ArrayList<int[][]> matrixArrayToAdd = new ArrayList<>(newSize);
 		for (int k = 0; k < matrixArrayToAdd.toArray().length; k++)
 		{
-			matrixArrayToAdd.set(k, new  int[matrixA.length][matrixB.length]);
-			matrix = new int[matrixA.length][matrixB.length];
-			for (int colIndex = 0; colIndex < matrix.length; colIndex++)
+            matrix = new int[matrixA.length][matrixB.length];
+			matrixArrayToAdd.set(k, matrix);
+
+			for (int colIndex = 0; colIndex < newSize; colIndex++)
 			{
 				for (int rowIndex = 0; rowIndex < newSize; rowIndex++)
 				{
