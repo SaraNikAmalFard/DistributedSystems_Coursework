@@ -1,6 +1,6 @@
 package com.example.grpc.client.grpcclient.service;
 
-import com.grpc.*;
+import com.grpc.MatrixMultiplicationServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
